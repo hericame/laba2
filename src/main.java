@@ -1,17 +1,16 @@
 import java.util.Scanner;
 import java.util.Stack;
-import java.util.regex.Pattern;
 
 public class main {
     public static void main(String[] args) {
         String str = "10+x*((90-10)/y*50+10-x+40*(50+10))+30";
         String[] str1;
         str1 = myParser(str);
-        Stack<Float> stack1 = new Stack<Float>();
-        Stack<Character> stack2 = new Stack<Character>();
-        char ch = ' ';
+        Stack<Float> stack1 = new Stack<>();
+        Stack<Character> stack2 = new Stack<>();
+        char ch;
 
-        if(str.matches("[\\\\(+|[a-zA-Z0-9]*[\\\\+\\\\-\\\\/\\\\*]?[a-zA-Z0-9]+|\\\\)+]*") && cheackBrackets(str)) {
+        if(str.matches("[\\\\(+|[a-zA-Z0-9]*[\\+\\-\\/\\*]?[a-zA-Z0-9]+|\\\\)+]*") && checkBrackets(str)) {
             for (int i = 0; str1[i] != null; i++) {
                 if (str1[i].charAt(0) >= '0' && str1[i].charAt(0) <= '9')
                     stack1.push(Float.parseFloat(str1[i]));
@@ -20,41 +19,37 @@ public class main {
                         stack2.push(str1[i].charAt(0));
                     else {
                         switch (str1[i].charAt(0)) {
-                            case '-':
-                            case '+':
+                            case '-', '+' -> {
                                 ch = stack2.peek();
-                                while ((ch == '+' || ch == '-' || ch == '/' || ch == '*') && (stack1.empty() == false && stack2.empty() == false)) {
-                                    stack1 = operate(stack1, ch);
+                                while ((ch == '+' || ch == '-' || ch == '/' || ch == '*') && (!stack1.empty() && !stack2.empty())) {
+                                    operate(stack1, ch);
                                     stack2.pop();
                                     if (!stack2.empty())
                                         ch = stack2.peek();
                                 }
                                 stack2.push(str1[i].charAt(0));
-                                break;
-                            case '*':
-                            case '/':
+                            }
+                            case '*', '/' -> {
                                 ch = stack2.peek();
-                                while ((ch == '/' || ch == '*') && (stack1.empty() == false && stack2.empty() == false)) {
-                                    stack1 = operate(stack1, ch);
+                                while ((ch == '/' || ch == '*') && (!stack1.empty() && !stack2.empty())) {
+                                    operate(stack1, ch);
                                     stack2.pop();
                                     if (!stack2.empty())
                                         ch = stack2.peek();
                                 }
                                 stack2.push(str1[i].charAt(0));
-                                break;
-                            case '(':
-                                stack2.push(str1[i].charAt(0));
-                                break;
-                            case ')':
+                            }
+                            case '(' -> stack2.push(str1[i].charAt(0));
+                            case ')' -> {
                                 ch = stack2.peek();
-                                while (ch != '(' && (stack1.empty() == false && stack2.empty() == false)) {
-                                    stack1 = operate(stack1, ch);
+                                while (ch != '(' && (!stack1.empty() && !stack2.empty())) {
+                                    operate(stack1, ch);
                                     stack2.pop();
                                     if (!stack2.empty())
                                         ch = stack2.peek();
                                 }
                                 stack2.pop();
-                                break;
+                            }
                         }
 
                     }
@@ -66,10 +61,11 @@ public class main {
 
             while (!stack2.empty() && !stack1.empty() && stack1.size() > 1) {
                 if (stack2.size() > 1) {
-                    stack1 = operate(stack1, stack2.peek());
+                    operate(stack1, stack2.peek());
                     stack2.pop();
-                } else
-                    stack1 = operate(stack1, stack2.pop());
+                } else {
+                    operate(stack1, stack2.pop());
+                }
             }
             System.out.println(stack2);
             System.out.println(stack1);
@@ -79,26 +75,17 @@ public class main {
 
     }
 
-    public static Stack<Float> operate(Stack<Float> stack, char op) {
-        if (stack.empty() == false) {
+    public static void operate(Stack<Float> stack, char op) {
+        if (!stack.empty()) {
             float a = stack.pop(), b = stack.pop();
             switch (op) {
-                case '+':
-                    stack.push(a + b);
-                    break;
-                case '-':
-                    stack.push(b - a);
-                    break;
-                case '*':
-                    stack.push(a * b);
-                    break;
-                case '/':
-                    stack.push(b / a);
-                    break;
+                case '+' -> stack.push(a + b);
+                case '-' -> stack.push(b - a);
+                case '*' -> stack.push(a * b);
+                case '/' -> stack.push(b / a);
             }
         }
 
-        return stack;
     }
 
     public static String[] myParser(String str){
@@ -122,7 +109,7 @@ public class main {
             else
                 if(str.charAt(i) != '+' && str.charAt(i) != '-' && str.charAt(i) != '*' && str.charAt(i) != '/' && str.charAt(i) != ' ' && str.charAt(i) != '(' && str.charAt(i) != ')'){
                     tmp = find(pair, str.charAt(i));
-                    if(nul || tmp == "a"){
+                    if(nul || tmp.equals("a")){
                         try{
                             System.out.print("Input " + str.charAt(i) + ' ');
                             pair[k] = new Pair(str.charAt(i), scanner.nextFloat());
@@ -169,23 +156,16 @@ public class main {
             return 'a' + "";
     }
 
-    public static boolean cheackBrackets(String str){
-        char ch = ' ';
+    public static boolean checkBrackets(String str){
+        char ch;
         int countL = 0, countR = 0;
         for (int i = 0; i < str.length();i++){
             ch = str.charAt(i);
-            switch(ch){
-                case'(':
-                    countL++;
-                    break;
-                case')':
-                    countR++;
-                    break;
+            switch (ch) {
+                case '(' -> countL++;
+                case ')' -> countR++;
             }
         }
-        if (countL - countR == 0)
-            return true;
-        else
-            return false;
+        return countL - countR == 0;
     }
 }
