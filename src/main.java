@@ -11,7 +11,7 @@ public class main {
         Stack<Character> stack2 = new Stack<Character>();
         char ch = ' ';
 
-        if(str.matches("123") && cheackBrackets(str)) {
+        if(str.matches("[\\(+|[a-zA-Z0-9]*[\\+\\-\\/\\*]?[a-zA-Z0-9]+|\\)+]*") && cheackBrackets(str)) {
             for (int i = 0; str1[i] != null; i++) {
                 if (str1[i].charAt(0) >= '0' && str1[i].charAt(0) <= '9')
                     stack1.push(Float.parseFloat(str1[i]));
